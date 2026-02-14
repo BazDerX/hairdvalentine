@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Moody ❤️</title>
+
+<style>
+  :root{
+    --pink:#ff4d6d;
+    --pink2:#ff9a9e;
+    --bg2:#fad0c4;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Segoe UI', sans-serif;
+    background:linear-gradient(135deg,var(--pink2),var(--bg2));
+    overflow:hidden;
+  }
+
+  /* --- layers --- */
+  .hearts, .confetti, .glow {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .hearts{ z-index:0; }
+  .confetti{ z-index:3; }
+  .glow{ z-index:1; opacity:0; transition: opacity .4s ease; }
+
+  .glow.on{
+    opacity:1;
+    background: radial-gradient(circle at 50% 40%, rgba(255,77,109,.35), transparent 55%);
+    filter: blur(2px);
+  }
+
+  /* --- card --- */
+  .card{
+    width:min(420px, 90vw);
+    background:white;
+    border-radius:24px;
+    padding:28px 26px;
+    text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,0.22);
+    position:relative;
+    z-index:2;
+    transform: translateY(0);
+    animation: popIn .9s ease both;
+  }
+
+  @keyframes popIn{
+    from{ opacity:0; transform:translateY(18px) scale(.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .title{
+    margin:0;
+    color:var(--pink);
+    font-size:32px;
+    letter-spacing:.2px;
+  }
+
+  .subtitle{
+    margin:10px 0 0;
+    font-size:16px;
+    line-height:1.55;
+    color:#333;
+    min-height: 52px;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+
+  .subtitle.fadeOut{ opacity:0; transform: translateY(6px); }
+  .subtitle.fadeIn{ opacity:1; transform: translateY(0); }
+
+  .row{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:16px;
+  }
+
+  button{
+    border:none;
+    cursor:pointer;
+    border-radius:999px;
+    padding:12px 18px;
+    font-weight:600;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  button:active{ transform: scale(.98); }
+
+  .btn{
+    background:var(--pink);
+    color:white;
+    min-width:140px;
+    box-shadow:0 10px 22px rgba(255,77,109,.35);
+  }
+  .btn:hover{ filter: brightness(1.03); }
+
+  .btn2{
+    background:rgba(255,77,109,.12);
+    color:var(--pink);
+  }
+
+  .small{
+    margin-top:14px;
+    font-size:12.5px;
+    color:#666;
+    opacity:.9;
+  }
+
+  /* --- hearts falling --- */
+  .heart{
+    position:absolute;
+    top:-22px;
+    animation: fall linear forwards;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.15));
+  }
+  @keyframes fall{
+    to{ transform: translateY(110vh) translateX(var(--drift)); opacity:0; }
+  }
+
+  /* --- confetti --- */
+  .piece{
+    position:absolute;
+    width:10px;
+    height:14px;
+    border-radius:3px;
+    opacity:.95;
+    animation: confettiFall linear forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes confettiFall{
+    to{ transform: translateY(110vh) rotate(720deg); opacity:0; }
+  }
+
+  /* --- modal --- */
+  .modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.35);
+    z-index:10;
+    padding:18px;
+  }
+  .modal.open{ display:flex; }
+
+  .sheet{
+    width:min(520px, 95vw);
+    background:white;
+    border-radius:22px;
+    padding:20px 18px;
+    box-shadow:0 24px 70px rgba(0,0,0,.28);
+    position:relative;
+    animation: popIn .25s ease both;
+  }
+
+  .sheet h2{
+    margin:0 0 10px;
+    color:var(--pink);
+    font-size:22px;
+  }
+  .letter{
+    background: linear-gradient(180deg, rgba(255,77,109,.08), transparent);
+    border:1px solid rgba(255,77,109,.2);
+    border-radius:16px;
+    padding:14px 14px;
+    text-align:left;
+    line-height:1.65;
+    color:#222;
+    font-size:15px;
+    white-space:pre-line;
+  }
+  .closeX{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:38px;
+    height:38px;
+    border-radius:999px;
+    border:none;
+    background:rgba(0,0,0,.06);
+    cursor:pointer;
+    font-size:18px;
+  }
+
+  /* --- music chip --- */
+  .chip{
+    margin:12px auto 0;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,77,109,.25);
+    background:rgba(255,255,255,.6);
+    color:#333;
+    font-size:13px;
+  }
+  .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:#bbb;
+  }
+  .dot.on{ background: #22c55e; }
+</style>
+</head>
+
+<body>
+
+<div class="hearts" id="hearts"></div>
+<div class="glow" id="glow"></div>
+<div class="confetti" id="confetti"></div>
+
+<div class="card">
+  <h1 class="title" id="title">Hi, Хөөрхнөө💗</h1>
+  <p class="subtitle fadeIn" id="text">Хамгаас хайртай охиндоо зориулав.</p>
+
+  <div class="row">
+    <button class="btn" id="btnMain">Энэ дээр дараарай хайраа ✨</button>
+    <button class="btn2" id="btnLetter">Захидал нээх 💌</button>
+  </div>
+
+  <div class="chip" title="Music is optional">
+    <span class="dot" id="musicDot"></span>
+    <span id="musicLabel">Music: OFF</span>
+    <button class="btn2" id="btnMusic" style="padding:7px 12px;">Хөгжим 🎵</button>
+  </div>
+
+  <div class="small" id="small">
+    Tip: Click ✨ multiple times 😉
+  </div>
+
+  <!-- optional music (local file is best) -->
+  <audio id="music" loop>
+    <!-- If you want local music: put "song.mp3" in same folder and uncomment next line -->
+    <source src="song.mp3.mp3" type="audio/mpeg"> 
+  </audio>
+</div>
+
+<!-- Love letter modal -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <button class="closeX" id="closeX">✕</button>
+    <h2>For My Moodygorl 💖</h2>
+    <div class="letter" id="letterText"></div>
+    <div class="row" style="margin-top:14px;">
+      <button class="btn" id="btnYes">Will you be my Valentine? 💘</button>
+      <button class="btn2" id="btnClose">Гарах</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+  // --- messages ---
+  const messages = [
+"Хэдий бидний хооронд зай хол ч, миний зүрх үргэлж чамруу 🌍",
+"Өдөр бүр, дахин дахин би чамайг сонгосоор л байна 💕",
+"Жинхэнэ хайр гэдэг зай, цаг хугацаанд хэмжигддэггүй зүгээр л мэдрэгддэг ❤️",
+"Чи бол миний тайвшрах газар, миний амар амгалан, миний гэр 🏡",
+"Хэзээд миний сонголт үргэлж чи. Өнгөрсөн, Одоо, Ирээдүйд 💞",
+"Чамтай учирсан минь миний амьдралын хамгийн сайхан зүйл Гэгээн Валентины баярын мэнд 🌹"
+];
+  let i = 0;
+
+  const textEl = document.getElementById("text");
+  const glowEl = document.getElementById("glow");
+
+  function changeMessage(){
+    textEl.classList.add("fadeOut");
+    setTimeout(()=>{
+      textEl.textContent = messages[i];
+      i = (i + 1) % messages.length;
+      textEl.classList.remove("fadeOut");
+      textEl.classList.add("fadeIn");
+      setTimeout(()=> textEl.classList.remove("fadeIn"), 250);
+    }, 220);
+  }
+
+  // --- confetti burst + glow ---
+  const confetti = document.getElementById("confetti");
+
+  function burstConfetti(count=22){
+    glowEl.classList.add("on");
+    setTimeout(()=> glowEl.classList.remove("on"), 450);
+
+    for(let k=0;k<count;k++){
+      const p = document.createElement("div");
+      p.className="piece";
+
+      // random color without hardcoding exact palette? (still simple)
+      const hue = Math.floor(Math.random()*360);
+      p.style.background = `hsl(${hue} 90% 60%)`;
+
+      p.style.left = (Math.random()*100) + "vw";
+      p.style.top  = (-10 - Math.random()*30) + "px";
+
+      const dur = (2.8 + Math.random()*2.2);
+      p.style.animationDuration = dur + "s";
+
+      const drift = (Math.random()*200 - 100) + "px";
+      p.style.transform = `translateX(${drift}) rotate(${Math.random()*180}deg)`;
+
+      confetti.appendChild(p);
+      setTimeout(()=>p.remove(), (dur*1000)+200);
+    }
+  }
+
+  // --- hearts background (fixed, no layout bug) ---
+  const heartsLayer = document.getElementById("hearts");
+
+  function spawnHeart(){
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.textContent = Math.random() < 0.35 ? "💗" : "❤️";
+
+    heart.style.left = (Math.random()*100) + "vw";
+    heart.style.fontSize = (14 + Math.random()*16) + "px";
+    heart.style.animationDuration = (4 + Math.random()*5) + "s";
+    heart.style.setProperty("--drift", (Math.random()*60 - 30) + "px");
+
+    heartsLayer.appendChild(heart);
+    setTimeout(()=>heart.remove(), 9500);
+  }
+  setInterval(spawnHeart, 650);
+
+  // --- Love letter content ---
+  const letterTextEl = document.getElementById("letterText");
+  function buildLetter(){
+    const who = name.trim() ? name.trim() : "my love";
+    letterTextEl.textContent =
+`Hello baby.
+Цэрэгт явснаас хойш ингэж захиа бичээгүй удсан байна, тийм ээ хаха тэхдээ энэ удаа digital захидал.
+Хоёулаа нэгнээсээ хол, удаан уулзаагүй нэгнийгээ зөндөө санаад хэцүү цаг хугацааг туулж байж заримдаа бие биенээ бүрэн ойлгохгүй, жижиг асуудлууд гарч, чамайгаа уурлуулчихдаг бол хайрыгаа уучлаарай.
+Хайр нь юу гээл хайрыгаа орхиховдээ энийг уулна өнөөдөр сэрхэд нь өгнө гэж бодож байсын тэгсэн дуусгаж амжидгүйэ шиба нэг сонин болоод наагаад тэгээл заза хайрыг ажилдаа явахаар дуусгаад явуулая гээд тэгээд амихандаа surprise бария гээд хайрыг өдөр юм яриад байхад нь балай2 юм яриад жоохон гомдоочих шиг л боллоо хаха.
+Гэхдээ нэг зүйлийг үнэнээсээ хэлхэд миний хайр үнэхээр мундаг шүү.
+
+Нэг зүйл бол баттай би чамаас илүү их хайртай за хаха.
+Хаана ч хэзээд ч хэний ч өмнө чамайгаа хамгаалж хайрлаж ийм хөөрхөн жижигхэн охинийг нандигнаж явна хөөрхнөө ооё.
+Заримдаа my brain not working болчдог болхоос хаха.
+Заза хоёулаа зөндөө хичээнээ тэгээд зөндөө санаж байна хайртай шүү. 
+
+- From Bazaraa ❤️`;
+  }
+  buildLetter();
+
+  // --- modal controls ---
+  const modal = document.getElementById("modal");
+  const btnLetter = document.getElementById("btnLetter");
+  const btnClose = document.getElementById("btnClose");
+  const closeX = document.getElementById("closeX");
+
+  function openModal(){ modal.classList.add("open"); }
+  function closeModal(){ modal.classList.remove("open"); }
+
+  btnLetter.addEventListener("click", ()=>{ burstConfetti(16); openModal(); });
+  btnClose.addEventListener("click", closeModal);
+  closeX.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+
+  // --- main button ---
+  const btnMain = document.getElementById("btnMain");
+  btnMain.addEventListener("click", ()=>{
+    changeMessage();
+    burstConfetti(22);
+  });
+
+  // --- Valentine YES button ---
+  document.getElementById("btnYes").addEventListener("click", ()=>{
+    burstConfetti(40);
+    alert("YES!!! За зөвшөөрсөн шүү бажана 💘💘💘");
+  });
+
+  // --- music toggle (works best with local song.mp3) ---
+  const music = document.getElementById("music");
+  const btnMusic = document.getElementById("btnMusic");
+  const musicDot = document.getElementById("musicDot");
+  const musicLabel = document.getElementById("musicLabel");
+
+  let musicOn = false;
+  function setMusicUI(){
+    musicDot.classList.toggle("on", musicOn);
+    musicLabel.textContent = "Music: " + (musicOn ? "ON" : "OFF");
+  }
+  setMusicUI();
+
+  btnMusic.addEventListener("click", async ()=>{
+    try{
+      if(!musicOn){
+        await music.play(); // will only play if you added a source file
+        musicOn = true;
+      } else {
+        music.pause();
+        musicOn = false;
+      }
+      setMusicUI();
+    } catch(e){
+      // If no audio source or browser blocks autoplay
+      alert("Music play didn't start. Add song.mp3 next to index.html (see comment in code).");
+      musicOn = false;
+      setMusicUI();
+    }
+  });
+
+</script>
+
+</body>
+</html>
