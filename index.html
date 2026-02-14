@@ -183,6 +183,24 @@
     font-size:15px;
     white-space:pre-line;
   }
+  /* ✅ Mobile дээр modal дотор scroll ажиллуулах fix */
+.modal{
+  align-items: flex-start;   /* төвд биш, дээрээс эхлүүлнэ */
+  overflow-y: auto;          /* modal өөрөө scroll байж болно */
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet{
+  max-height: calc(100vh - 40px); /* дэлгэцнээс хэтрэхгүй */
+  overflow-y: auto;               /* sheet дотор scroll */
+  -webkit-overflow-scrolling: touch;
+}
+
+.letter{
+  max-height: 60vh;               /* урт захидлыг дотроо scroll хийнэ */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
   .closeX{
     position:absolute;
     top:12px;
@@ -239,7 +257,7 @@
   </div>
 
   <div class="small" id="small">
-    Tip: Click ✨ multiple times 😉
+    Tip: Click ✨ multiple times and if you want hear music put headphones 😉
   </div>
 
   <!-- optional music (local file is best) -->
@@ -419,3 +437,4 @@
 
 </body>
 </html>
+
